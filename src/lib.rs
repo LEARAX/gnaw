@@ -1,16 +1,14 @@
-use std::net::{SocketAddr, TcpStream};
-
 #[derive(Debug)]
 pub struct Mpd {
     connection: std::net::TcpStream,
 }
 
-pub fn mpd_connect(address: SocketAddr) -> Mpd {
-    if let Ok(stream) = TcpStream::connect(address) {
-        Mpd {
-            connection: stream
+impl Mpd {
+    pub fn new(address: std::net::SocketAddr) -> Result<Mpd, &'static str> {
+        if let Ok(stream) = std::net::TcpStream::connect(address) {
+            Ok(Mpd { connection: stream })
+        } else {
+            return Err("Failed to connect to MPD!");
         }
-    } else {
-        panic!("Failed to connect to MPD!")
     }
 }
