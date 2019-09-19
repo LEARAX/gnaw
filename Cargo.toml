@@ -17,3 +17,5 @@ name = "gnaw"
 path = "src/main.rs"
 
 [dependencies]
+tui = "0.6.2"
+termion = "1.5.3"
