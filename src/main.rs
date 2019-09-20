@@ -1,4 +1,6 @@
-use std::io;
+use std::{thread, io};
+use std::time::Duration;
+use std::sync::mpsc;
 use termion::event::{Event, Key, MouseEvent};
 use termion::input::TermRead;
 use termion::raw::IntoRawMode;
@@ -25,32 +27,30 @@ fn main() -> Result<(), io::Error> {
             index: 0
         };
         println!("{:#?}", mpd);
-        let stdin = io::stdin();
         let stdout = io::stdout().into_raw_mode()?;
         let backend = TermionBackend::new(stdout);
         let mut terminal = Terminal::new(backend)?;
         terminal.hide_cursor().unwrap();
         terminal.clear()?;
-        for c in stdin.events() {
+        let (tx, rx) = mpsc::channel();
+        thread::spawn(move || {
+            let stdin = std::io::stdin();
+            for c in stdin.lock().events() {
                 let evt = c.unwrap();
-                match evt {
-                    Event::Key(Key::Char('1')) => tabs.goto(0),
-                    Event::Key(Key::Char('2')) => tabs.goto(1),
-                    Event::Key(Key::Char('3')) => tabs.goto(2),
-                    Event::Key(Key::Char('4')) => tabs.goto(3),
-                    Event::Key(Key::Char('q')) => break,
-                    Event::Mouse(me) => {
-                        match me {
-                            /*
-                             * MouseEvent::Press(_, x, y) => {
-                             *     write!(stdout, "{}x", termion::cursor::Goto(x, y)).unwrap();
-                             * },
-                             */
-                            _ => (),
-                        }
-                    }
-                    _ => {}
-                }
+                tx.send(evt).unwrap();
+            }
+        });
+        'main: loop {
+            match rx.recv_timeout(Duration::from_millis(200)) {
+                Ok(Event::Key(Key::Char('1'))) => tabs.goto(0),
+                Ok(Event::Key(Key::Char('2'))) => tabs.goto(1),
+                Ok(Event::Key(Key::Char('3'))) => tabs.goto(2),
+                Ok(Event::Key(Key::Char('4'))) => tabs.goto(3),
+                Ok(Event::Key(Key::Char('q'))) => break,
+                Ok(_) => {},
+                Err(mpsc::RecvTimeoutError::Disconnected) => panic!("isolated from input thread"),
+                Err(mpsc::RecvTimeoutError::Timeout) => {},
+            }
             terminal
                 .draw(|mut term| {
                     let size = term.size();
@@ -63,13 +63,13 @@ fn main() -> Result<(), io::Error> {
                         .divider(tui::symbols::DOT)
                         .render(&mut term, size);
                 })
-                .unwrap();
+            .unwrap();
         }
         terminal.show_cursor().unwrap();
         terminal.clear()?;
         mpd.connection.shutdown(std::net::Shutdown::Both).unwrap(); // TODO: Move to library
         return Ok(());
     } else {
-        panic!("Failed to connect to mpd!")
+        panic!("failed to connect to mpd")
     }
 }
