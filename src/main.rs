@@ -1,6 +1,6 @@
-use std::{thread, io};
-use std::time::Duration;
 use std::sync::mpsc;
+use std::time::Duration;
+use std::{io, thread};
 use termion::event::{Event, Key, MouseEvent};
 use termion::input::TermRead;
 use termion::raw::IntoRawMode;
@@ -11,7 +11,7 @@ use tui::Terminal;
 
 struct TabState<'a> {
     titles: Vec<&'a str>,
-    index: usize
+    index: usize,
 }
 
 impl<'a> TabState<'a> {
@@ -23,8 +23,8 @@ impl<'a> TabState<'a> {
 fn main() -> Result<(), io::Error> {
     if let Ok(mpd) = gnaw::Mpd::new("127.0.0.1:6600".parse().unwrap()) {
         let mut tabs = TabState {
-            titles: vec!("Currently Playing", "Queue", "Albums", "Artists"),
-            index: 0
+            titles: vec!["Currently Playing", "Queue", "Albums", "Artists"],
+            index: 0,
         };
         println!("{:#?}", mpd);
         let stdout = io::stdout().into_raw_mode()?;
@@ -47,9 +47,9 @@ fn main() -> Result<(), io::Error> {
                 Ok(Event::Key(Key::Char('3'))) => tabs.goto(2),
                 Ok(Event::Key(Key::Char('4'))) => tabs.goto(3),
                 Ok(Event::Key(Key::Char('q'))) => break,
-                Ok(_) => {},
+                Ok(_) => {}
                 Err(mpsc::RecvTimeoutError::Disconnected) => panic!("isolated from input thread"),
-                Err(mpsc::RecvTimeoutError::Timeout) => {},
+                Err(mpsc::RecvTimeoutError::Timeout) => {}
             }
             terminal
                 .draw(|mut term| {
@@ -63,7 +63,7 @@ fn main() -> Result<(), io::Error> {
                         .divider(tui::symbols::DOT)
                         .render(&mut term, size);
                 })
-            .unwrap();
+                .unwrap();
         }
         terminal.show_cursor().unwrap();
         terminal.clear()?;
