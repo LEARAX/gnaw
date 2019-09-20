@@ -1,7 +1,6 @@
 use std::io::prelude::*;
 use std::io::BufReader;
 
-#[derive(Debug)]
 pub struct Mpd {
     pub connection: std::net::TcpStream,
     pub version: String,
@@ -12,7 +11,7 @@ impl Mpd {
         if let Ok(stream) = std::net::TcpStream::connect(address) {
             let mut reader = BufReader::new(&stream);
             let mut buffer = String::new();
-            if let Ok(_) = reader.read_line(&mut buffer) {
+            reader.read_line(&mut buffer).expect("failed to read initial response from MPD");
                 if &buffer[0..6] == "OK MPD" {
                     buffer.pop();
                     Ok(Mpd {
@@ -22,11 +21,8 @@ impl Mpd {
                 } else {
                     return Err("MPD returned an inappropriate response");
                 }
-            } else {
-                return Err("Failed to read version information from MPD");
-            }
         } else {
-            return Err("Failed to connect to MPD");
+            return Err("failed to connect to MPD");
         }
     }
 }
