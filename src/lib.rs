@@ -11,16 +11,18 @@ impl Mpd {
         if let Ok(stream) = std::net::TcpStream::connect(address) {
             let mut reader = BufReader::new(&stream);
             let mut buffer = String::new();
-            reader.read_line(&mut buffer).expect("failed to read initial response from MPD");
-                if &buffer[0..6] == "OK MPD" {
-                    buffer.pop();
-                    Ok(Mpd {
-                        connection: stream,
-                        version: buffer[7..].to_string(),
-                    })
-                } else {
-                    return Err("MPD returned an inappropriate response");
-                }
+            reader
+                .read_line(&mut buffer)
+                .expect("failed to read initial response from MPD");
+            if &buffer[0..6] == "OK MPD" {
+                buffer.pop();
+                Ok(Mpd {
+                    connection: stream,
+                    version: buffer[7..].to_string(),
+                })
+            } else {
+                return Err("MPD returned an inappropriate response");
+            }
         } else {
             return Err("failed to connect to MPD");
         }

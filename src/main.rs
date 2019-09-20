@@ -55,7 +55,7 @@ fn main() -> Result<(), io::Error> {
                         .divider(tui::symbols::line::VERTICAL)
                         .render(&mut term, chunks[1]);
                 })
-            .unwrap();
+                .unwrap();
             match rx.recv_timeout(Duration::from_millis(1000)) {
                 Ok(Event::Key(Key::Char('1'))) => tabs.goto(0),
                 Ok(Event::Key(Key::Char('2'))) => tabs.goto(1),
