@@ -12,7 +12,7 @@ use tui::Terminal;
 mod render;
 
 fn main() -> Result<(), io::Error> {
-    if let Ok(mpd) = gnaw::Mpd::new(
+    if let Ok(mut mpd) = gnaw::Mpd::new(
         "127.0.0.1:6600"
             .parse()
             .expect("failed to parse MPD address"),
