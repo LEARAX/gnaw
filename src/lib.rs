@@ -46,8 +46,8 @@ impl Mpd {
         let mut song_artist = String::new();
         let mut song_duration: f64 = 0.0;
         for line in reader.lines() {
-            if line.as_ref().unwrap().len() >= 7 {
-                if let Ok(data) = line.as_ref() {
+            if let Ok(data) = line.as_ref() {
+                if data.len() >= 7 {
                     if let Some(start) = data[..].get(0..9) {
                         if &start[0..6] == "Title:" {
                             song_title = data[7..].to_string();
@@ -59,14 +59,14 @@ impl Mpd {
                             song_duration = data[10..].parse::<f64>().unwrap();
                         };
                     };
-                } else {
-                    return Err("failed to read data from MPD");
-                };
-            } else if let Ok(data) = line.as_ref() {
-                if data == "OK" {
-                    break;
+                } else if let Ok(data) = line.as_ref() {
+                    if data == "OK" {
+                        break;
+                    }
                 }
-            }
+            } else {
+                return Err("failed to read data from MPD");
+            };
         }
 
         Ok(Song {
