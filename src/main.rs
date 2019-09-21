@@ -1,3 +1,4 @@
+use render::TabState;
 use std::sync::mpsc;
 use std::time::Duration;
 use std::{io, thread};
@@ -8,7 +9,7 @@ use tui::backend::TermionBackend;
 use tui::layout::{Constraint, Layout};
 use tui::Terminal;
 
-mod windows;
+mod render;
 
 fn main() -> Result<(), io::Error> {
     if let Ok(mpd) = gnaw::Mpd::new(
@@ -16,7 +17,7 @@ fn main() -> Result<(), io::Error> {
             .parse()
             .expect("failed to parse MPD address"),
     ) {
-        let mut tabs = windows::TabState {
+        let mut tabs = TabState {
             titles: vec!["Queue", "Songs", "Albums", "Artists"],
             index: 0,
         };
@@ -46,9 +47,12 @@ fn main() -> Result<(), io::Error> {
                             .as_ref(),
                         )
                         .split(term.size());
-                    windows::draw_status(&mut term, chunks[2], &tabs);
+                    let current_song = mpd
+                        .current_song()
+                        .expect("failed to get current song from MPD");
+                    render::draw_status(&mut term, chunks[2], &tabs, current_song);
                     match tabs.index {
-                        0 => windows::draw_queue(&mut term, chunks[1]),
+                        0 => render::draw_queue(&mut term, chunks[1]),
                         _ => panic!("tab index out of order"),
                     }
                 })

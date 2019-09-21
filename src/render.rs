@@ -68,16 +68,16 @@ where
         .render(term, section);
 }
 
-fn draw_current<B>(term: &mut Frame<B>, section: Rect)
+fn draw_current<B>(term: &mut Frame<B>, section: Rect, current_song: gnaw::Song)
 where
     B: tui::backend::Backend,
 {
     let status_text = [
-        Text::styled("Sweet Light", Style::default().fg(Color::LightBlue)),
+        Text::styled(current_song.title, Style::default().fg(Color::LightBlue)),
         Text::raw(" | "),
-        Text::styled("Power", Style::default().fg(Color::LightRed)),
+        Text::styled(current_song.album, Style::default().fg(Color::LightRed)),
         Text::raw(" | "),
-        Text::styled("Boys Noize", Style::default().fg(Color::LightYellow)),
+        Text::styled(current_song.artist, Style::default().fg(Color::LightYellow)),
     ];
     Paragraph::new(status_text.iter())
         .block(
@@ -89,7 +89,7 @@ where
         .render(term, section);
 }
 
-pub fn draw_status<B>(term: &mut Frame<B>, area: Rect, tabs: &TabState)
+pub fn draw_status<B>(term: &mut Frame<B>, area: Rect, tabs: &TabState, current_song: gnaw::Song)
 where
     B: tui::backend::Backend,
 {
@@ -99,5 +99,5 @@ where
         .direction(Direction::Horizontal)
         .split(area);
     draw_tabs(term, chunks[0], tabs);
-    draw_current(term, chunks[1]);
+    draw_current(term, chunks[1], current_song);
 }

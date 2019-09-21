@@ -6,6 +6,13 @@ pub struct Mpd {
     pub version: String,
 }
 
+pub struct Song {
+    pub title: String,
+    pub album: String,
+    pub artist: String,
+    pub duration: usize,
+}
+
 impl Mpd {
     pub fn new(address: std::net::SocketAddr) -> Result<Mpd, &'static str> {
         if let Ok(stream) = std::net::TcpStream::connect(address) {
@@ -26,5 +33,15 @@ impl Mpd {
         } else {
             return Err("failed to connect to MPD");
         }
+    }
+
+    pub fn current_song(&self) -> Result<Song, &'static str> {
+        // TODO: Remove placeholder song
+        Ok(Song {
+            title: String::from("Aliens"),
+            album: String::from("Wice"),
+            artist: String::from("Wice"),
+            duration: 243,
+        })
     }
 }
