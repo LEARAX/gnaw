@@ -28,10 +28,10 @@ impl Mpd {
                     version: buffer[7..].to_string(),
                 })
             } else {
-                return Err("MPD returned an inappropriate response");
+                Err("MPD returned an inappropriate response")
             }
         } else {
-            return Err("failed to connect to MPD");
+            Err("failed to connect to MPD")
         }
     }
 
