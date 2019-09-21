@@ -47,10 +47,14 @@ fn main() -> Result<(), io::Error> {
                             .as_ref(),
                         )
                         .split(term.size());
-                    let current_song = mpd
-                        .current_song()
-                        .expect("failed to get current song from MPD");
-                    render::draw_status(&mut term, chunks[2], &tabs, current_song);
+                    let current_song = mpd.current_song();
+                    if let Ok(song) = current_song {
+                        render::draw_duration(&mut term, chunks[0], Some(&song));
+                        render::draw_status(&mut term, chunks[2], &tabs, Some(&song));
+                    } else {
+                        render::draw_duration(&mut term, chunks[0], None);
+                        render::draw_status(&mut term, chunks[2], &tabs, None);
+                    }
                     match tabs.index {
                         0 => render::draw_queue(&mut term, chunks[1]),
                         _ => panic!("tab index out of order"),
