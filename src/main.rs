@@ -6,25 +6,18 @@ use termion::input::TermRead;
 use termion::raw::IntoRawMode;
 use tui::backend::TermionBackend;
 use tui::layout::{Constraint, Layout};
-use tui::style::{Color, Style};
-use tui::widgets::{Block, Borders, Tabs, Widget};
 use tui::Terminal;
 
-struct TabState<'a> {
-    titles: Vec<&'a str>,
-    index: usize,
-}
-
-impl<'a> TabState<'a> {
-    fn goto(&mut self, num: usize) {
-        self.index = num;
-    }
-}
+mod windows;
 
 fn main() -> Result<(), io::Error> {
-    if let Ok(mpd) = gnaw::Mpd::new("127.0.0.1:6600".parse().unwrap()) {
-        let mut tabs = TabState {
-            titles: vec!["Currently Playing", "Queue", "Albums", "Artists"],
+    if let Ok(mpd) = gnaw::Mpd::new(
+        "127.0.0.1:6600"
+            .parse()
+            .expect("failed to parse MPD address"),
+    ) {
+        let mut tabs = windows::TabState {
+            titles: vec!["Queue", "Songs", "Albums", "Artists"],
             index: 0,
         };
         let stdout = io::stdout().into_raw_mode()?;
@@ -44,16 +37,20 @@ fn main() -> Result<(), io::Error> {
             terminal
                 .draw(|mut term| {
                     let chunks = Layout::default()
-                        .constraints([Constraint::Min(0), Constraint::Length(3)].as_ref())
+                        .constraints(
+                            [
+                                Constraint::Length(3),
+                                Constraint::Min(0),
+                                Constraint::Length(3),
+                            ]
+                            .as_ref(),
+                        )
                         .split(term.size());
-                    Tabs::default()
-                        .block(Block::default().borders(Borders::ALL))
-                        .titles(&tabs.titles)
-                        .select(tabs.index)
-                        .style(Style::default().fg(Color::White))
-                        .highlight_style(Style::default().fg(Color::Green))
-                        .divider(tui::symbols::line::VERTICAL)
-                        .render(&mut term, chunks[1]);
+                    windows::draw_status(&mut term, chunks[2], &tabs);
+                    match tabs.index {
+                        0 => windows::draw_queue(&mut term, chunks[1]),
+                        _ => panic!("tab index out of order"),
+                    }
                 })
                 .unwrap();
             match rx.recv_timeout(Duration::from_millis(1000)) {
