@@ -68,18 +68,6 @@ impl Mpd {
                 }
             }
         }
-        if song_title == String::new() {
-            return Err("failed to locate title string in MPD response");
-        };
-        if song_album == String::new() {
-            return Err("failed to locate album string in MPD response");
-        };
-        if song_artist == String::new() {
-            return Err("failed to locate artist string in MPD response");
-        };
-        if song_duration == 0.0 {
-            return Err("failed to locate duration string in MPD response");
-        };
 
         Ok(Song {
             title: song_title,
