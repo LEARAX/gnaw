@@ -17,6 +17,11 @@ fn main() -> Result<(), io::Error> {
             .parse()
             .expect("failed to parse MPD address"),
     ) {
+
+
+        let debug = mpd.fetch_queue();
+        println!("{:#?}", debug);
+        panic!("Done");
         let mut tabs = TabState {
             titles: vec!["Queue", "Songs", "Albums", "Artists"],
             index: 0,
@@ -47,16 +52,23 @@ fn main() -> Result<(), io::Error> {
                             .as_ref(),
                         )
                         .split(term.size());
-                    let current_song = mpd.current_song();
-                    if let Ok(song) = current_song {
-                        render::draw_duration(&mut term, chunks[0], Some(&song));
-                        render::draw_status(&mut term, chunks[2], &tabs, Some(&song));
+                    if let Ok((current_song, elapsed)) = mpd.fetch_current_song() {
+                        println!("{:#?}", &current_song);
+                        render::draw_duration(&mut term, chunks[0], elapsed, current_song.duration);
+                        render::draw_status(&mut term, chunks[2], &tabs, Some(&current_song));
                     } else {
-                        render::draw_duration(&mut term, chunks[0], None);
+                        render::draw_duration(&mut term, chunks[0], None, None);
                         render::draw_status(&mut term, chunks[2], &tabs, None);
                     }
                     match tabs.index {
-                        0 => render::draw_queue(&mut term, chunks[1]),
+                        0 => {
+                            let queue = mpd.fetch_queue();
+                            if let Ok(queue) = queue {
+                                render::draw_queue(&mut term, chunks[1], Some(&queue));
+                            } else {
+                                render::draw_queue(&mut term, chunks[1], None);
+                            }
+                        }
                         _ => panic!("tab index out of order"),
                     }
                 })
