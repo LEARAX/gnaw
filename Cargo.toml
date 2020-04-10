@@ -7,6 +7,7 @@ description = "An MPD TUI client"
 repository = "https://github.com/LEARAX57H/gnaw"
 license = "MIT"
 keywords = ["mpd"]
+categories = ["command-line-utilities", "api-bindings"]
 
 [lib]
 name = "gnaw"
