@@ -15,5 +15,5 @@ name = "gnaw"
 name = "gnaw"
 
 [dependencies]
-tui = "0.6.2"
-termion = "1.5.3"
+tui = "0.8.0"
+termion = "1.5.5"

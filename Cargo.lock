@@ -25,7 +25,7 @@ name = "gnaw"
 version = "0.1.0"
 dependencies = [
  "termion 1.5.5 (registry+https://github.com/rust-lang/crates.io-index)",
- "tui 0.6.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "tui 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -80,7 +80,7 @@ dependencies = [
 
 [[package]]
 name = "tui"
-version = "0.6.2"
+version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "bitflags 1.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -115,6 +115,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum redox_syscall 0.1.56 (registry+https://github.com/rust-lang/crates.io-index)" = "2439c63f3f6139d1b57529d16bc3b8bb855230c8efcc5d3a896c8bea7c3b1e84"
 "checksum redox_termios 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "7e891cfe48e9100a70a3b6eb652fef28920c117d366339687bd5576160db0f76"
 "checksum termion 1.5.5 (registry+https://github.com/rust-lang/crates.io-index)" = "c22cec9d8978d906be5ac94bceb5a010d885c626c4c8855721a4dbd20e3ac905"
-"checksum tui 0.6.2 (registry+https://github.com/rust-lang/crates.io-index)" = "73b422ff4986065d33272b587907654f918a3fe8702786a8110bf68dede0d8ee"
+"checksum tui 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)" = "6b871b61f4c4b81e630215cd12e0ec29953d4545898e21a9e023b7520a74a9f9"
 "checksum unicode-segmentation 1.6.0 (registry+https://github.com/rust-lang/crates.io-index)" = "e83e153d1053cbb5a118eeff7fd5be06ed99153f00dbcd8ae310c5fb2b22edc0"
 "checksum unicode-width 0.1.7 (registry+https://github.com/rust-lang/crates.io-index)" = "caaa9d531767d1ff2150b9332433f32a24622147e5ebb1f26409d5da67afd479"
