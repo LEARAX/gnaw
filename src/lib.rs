@@ -1,17 +1,33 @@
+use chrono::{offset, Date, DateTime, Duration};
 use std::io::prelude::*;
 use std::io::BufReader;
+use std::path::Path;
 
+#[derive(Debug)]
 pub struct Mpd {
     pub connection: std::net::TcpStream,
     pub version: String,
 }
 
-pub struct Song {
-    pub title: String,
-    pub album: String,
-    pub artist: String,
-    pub duration: f64,
-    pub elapsed: f64,
+#[derive(Debug)]
+pub struct Song<'a> {
+    pub file: &'a Path,
+    pub last_modified: DateTime<offset::FixedOffset>,
+    pub album: &'a str,
+    pub album_artist: &'a str,
+    pub album_artist_sort: &'a str,
+    pub artist: &'a str,
+    pub artist_sort: &'a str,
+    pub date: Date<offset::FixedOffset>,
+    pub disc: u8,
+    pub genre: &'a str,
+    pub label: &'a str,
+    pub title: &'a str,
+    pub track: &'a str,
+    pub elapsed: Duration,
+    pub duration: Duration,
+    pub id: u64,
+    pub other_tags: std::collections::HashMap<&'a str, &'a str>,
 }
 
 impl Mpd {
@@ -31,77 +47,80 @@ impl Mpd {
                 Err("MPD returned an inappropriate response")
             }
         } else {
-            Err("failed to connect to MPD")
+            Err("Failed to connect to MPD")
         }
     }
 
-    pub fn current_song(&mut self) -> Result<Song, &'static str> {
-        self.connection
-            .write(b"currentsong\n")
-            .expect("failed to write to MPD connection");
-        let reader = BufReader::new(&self.connection);
-        let mut song_title = None;
-        let mut song_album = None;
-        let mut song_artist = None;
-        let mut song_duration = None;
-        for line in reader.lines() {
-            if let Ok(data) = line.as_ref() {
-                if data == "OK" {
-                    break;
-                } else if Some("Title:") == data.get(0..6) {
-                    song_title = Some(data[7..].to_string());
-                } else if Some("Album:") == data.get(0..6) {
-                    song_album = Some(data[7..].to_string());
-                } else if Some("Artist:") == data.get(0..7) {
-                    song_artist = Some(data[8..].to_string());
-                } else if Some("duration:") == data.get(0..9) {
-                    let parsed_duration = data[10..].parse::<f64>();
-                    if let Ok(exp_duration) = parsed_duration {
-                        song_duration = Some(exp_duration);
-                    } else {
-                        song_duration = None;
-                    }
-                }
-            } else {
-                return Err("failed to read song data from MPD");
-            };
-        }
-
-        let mut song_elapsed = None;
-        self.connection
-            .write(b"status\n")
-            .expect("failed to write to MPD connection");
-        let reader = BufReader::new(&self.connection);
-        for line in reader.lines() {
-            if let Ok(data) = line.as_ref() {
-                if data == "OK" {
-                    break;
-                } else if Some("elapsed:") == data.get(0..8) {
-                    let parsed_elapsed = data[9..].parse::<f64>();
-                    if let Ok(exp_elapsed) = parsed_elapsed {
-                        song_elapsed = Some(exp_elapsed);
-                    } else {
-                        song_elapsed = None;
-                    }
-                }
-            }
-        }
-
-        if song_title.is_some()
-            && song_album.is_some()
-            && song_artist.is_some()
-            && song_duration.is_some()
-            && song_elapsed.is_some()
-        {
-            Ok(Song {
-                title: song_title.unwrap(),
-                album: song_album.unwrap(),
-                artist: song_artist.unwrap(),
-                duration: song_duration.unwrap(),
-                elapsed: song_elapsed.unwrap(),
-            })
-        } else {
-            Err("song data not found")
-        }
-    }
+    /*
+     *     pub fn current_song(&mut self) -> Result<Song, &'static str> {
+     *         self.connection
+     *             .write(b"currentsong\n")
+     *             .expect("Failed to write to MPD connection");
+     *         let reader = BufReader::new(&self.connection);
+     *         let mut song_title = None;
+     *         let mut song_album = None;
+     *         let mut song_artist = None;
+     *         let mut song_duration = None;
+     *         for line in reader.lines() {
+     *             if let Ok(data) = line.as_ref() {
+     *                 println!("{}", data);
+     *                 if data == "OK" {
+     *                     break;
+     *                 } else if Some("Title:") == data.get(0..6) {
+     *                     song_title = Some(data[7..].to_string());
+     *                 } else if Some("Album:") == data.get(0..6) {
+     *                     song_album = Some(data[7..].to_string());
+     *                 } else if Some("Artist:") == data.get(0..7) {
+     *                     song_artist = Some(data[8..].to_string());
+     *                 } else if Some("duration:") == data.get(0..9) {
+     *                     let parsed_duration = data[10..].parse::<f64>();
+     *                     if let Ok(exp_duration) = parsed_duration {
+     *                         song_duration = Some(exp_duration);
+     *                     } else {
+     *                         song_duration = None;
+     *                     }
+     *                 }
+     *             } else {
+     *                 return Err("Failed to read song data from MPD");
+     *             };
+     *         }
+     *
+     *         let mut song_elapsed = None;
+     *         self.connection
+     *             .write(b"status\n")
+     *             .expect("Failed to write to MPD connection");
+     *         let reader = BufReader::new(&self.connection);
+     *         for line in reader.lines() {
+     *             if let Ok(data) = line.as_ref() {
+     *                 if data == "OK" {
+     *                     break;
+     *                 } else if Some("elapsed:") == data.get(0..8) {
+     *                     let parsed_elapsed = data[9..].parse::<f64>();
+     *                     if let Ok(exp_elapsed) = parsed_elapsed {
+     *                         song_elapsed = Some(exp_elapsed);
+     *                     } else {
+     *                         song_elapsed = None;
+     *                     }
+     *                 }
+     *             }
+     *         }
+     *
+     *         if song_title.is_some()
+     *             && song_album.is_some()
+     *             && song_artist.is_some()
+     *             && song_duration.is_some()
+     *             && song_elapsed.is_some()
+     *         {
+     *             Ok(Song {
+     *                 title: song_title.unwrap(),
+     *                 album: song_album.unwrap(),
+     *                 artist: song_artist.unwrap(),
+     *                 duration: song_duration.unwrap(),
+     *                 elapsed: song_elapsed.unwrap(),
+     *             })
+     *         } else {
+     *             Err("Song data not found")
+     *         }
+     *     }
+     */
 }
