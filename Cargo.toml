@@ -1,12 +1,12 @@
 [package]
 name = "gnaw"
 version = "0.1.0"
-description = "An MPD TUI client"
 authors = ["William Culhane <sxroka@gmail.com>"]
-keywords = ["mpd"]
-license = "MIT"
-repository = "https://github.com/LEARAX57H/gnaw"
 edition = "2018"
+description = "An MPD TUI client"
+repository = "https://github.com/LEARAX57H/gnaw"
+license = "MIT"
+keywords = ["mpd"]
 
 [lib]
 name = "gnaw"
