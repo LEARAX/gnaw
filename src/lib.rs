@@ -29,7 +29,7 @@ impl Mpd {
                 Err("MPD returned an inappropriate response")
             }
         } else {
-            Err("Failed to connect to MPD")
+            Err("failed to connect to MPD")
         }
     }
 }
