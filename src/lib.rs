@@ -1,8 +1,6 @@
-use chrono::{offset, Date, DateTime, Duration};
 use std::collections::HashMap;
 use std::io::prelude::*;
 use std::io::BufReader;
-use std::path::Path;
 
 #[derive(Debug)]
 pub struct Mpd {
@@ -10,7 +8,7 @@ pub struct Mpd {
     pub version: String,
 }
 
-type Song<'a> = HashMap<&'a str, &'a str>;
+type Song<'a> = HashMap<String, String>;
 
 impl Mpd {
     pub fn new(address: std::net::SocketAddr) -> Result<Mpd, &'static str> {
@@ -31,5 +29,21 @@ impl Mpd {
         } else {
             Err("failed to connect to MPD")
         }
+    }
+    pub fn current_song(&mut self) -> Result<Song, &'static str> {
+        self.connection
+            .write(b"currentsong\n")
+            .expect("failed to write to MPD connection");
+
+        let reader = BufReader::new(&self.connection);
+        let mut current_song = Song::new();
+        for line in reader.lines().map(|l| l.unwrap()) {
+            if line == "OK" {
+                break;
+            }
+            let split: std::vec::Vec<&str> = line.split(":").collect();
+            current_song.insert(split[0].to_string(), split[1][1..].to_string());
+        }
+        Ok(current_song)
     }
 }

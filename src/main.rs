@@ -7,9 +7,10 @@ fn main() {
             .expect("failed to parse MPD address"),
     )
     .expect("failed to connect to MPD");
-    /*
-     * if let Ok(current_song) = Mpd::current_song(&mut mpd) {
-     *     println!("{:?}", current_song);
-     * }
-     */
+    println!("MPD connection established!");
+    if let Ok(current_song) = Mpd::current_song(&mut mpd) {
+        println!("{:?}", current_song);
+    } else {
+        panic!("FAILURE CURRENT");
+    }
 }
