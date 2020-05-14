@@ -17,4 +17,8 @@ fn main() {
         Ok(status) => println!("{:?}", status),
         Err(e) => eprintln!("Error retrieving MPD status: {:?}", e),
     }
+    match Mpd::stats(&mut mpd) {
+        Ok(stats) => println!("{:?}", stats),
+        Err(e) => eprintln!("Error retrieving MPD stats: {:?}", e),
+    }
 }

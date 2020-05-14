@@ -66,4 +66,20 @@ impl Mpd {
         }
         Ok(status)
     }
+    pub fn stats(&mut self) -> Result<HashMap<String, String>, &'static str> {
+        self.connection
+            .write(b"stats\n")
+            .expect("failed to write to MPD connection");
+
+        let reader = BufReader::new(&self.connection);
+        let mut stats = HashMap::new();
+        for line in reader.lines().map(|l| l.unwrap()) {
+            if line == "OK" {
+                break;
+            }
+            let split: std::vec::Vec<&str> = line.split(":").collect();
+            stats.insert(split[0].to_string(), split[1][1..].to_string());
+        }
+        Ok(stats)
+    }
 }
