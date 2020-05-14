@@ -13,4 +13,8 @@ fn main() {
         Ok(current_song) => println!("{:?}", current_song),
         Err(e) => eprintln!("Error retrieving current song: {:?}", e),
     }
+    match Mpd::status(&mut mpd) {
+        Ok(status) => println!("{:?}", status),
+        Err(e) => eprintln!("Error retrieving MPD status: {:?}", e),
+    }
 }

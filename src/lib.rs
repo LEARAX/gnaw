@@ -50,4 +50,20 @@ impl Mpd {
             Ok(current_song)
         }
     }
+    pub fn status(&mut self) -> Result<HashMap<String, String>, &'static str> {
+        self.connection
+            .write(b"status\n")
+            .expect("failed to write to MPD connection");
+
+        let reader = BufReader::new(&self.connection);
+        let mut status = HashMap::new();
+        for line in reader.lines().map(|l| l.unwrap()) {
+            if line == "OK" {
+                break;
+            }
+            let split: std::vec::Vec<&str> = line.split(":").collect();
+            status.insert(split[0].to_string(), split[1][1..].to_string());
+        }
+        Ok(status)
+    }
 }
