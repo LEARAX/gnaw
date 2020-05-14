@@ -8,10 +8,9 @@ fn main() {
     )
     .expect("failed to connect to MPD");
     println!("MPD connection established!");
-    let current_song = Mpd::current_song(&mut mpd);
-    if let Ok(current_song) = current_song {
-        println!("{:?}", current_song);
-    } else {
-        eprintln!("Error retrieving current song: {:?}", current_song.unwrap());
+    println!("MPD: {:?}", mpd);
+    match Mpd::current_song(&mut mpd) {
+        Ok(current_song) => println!("{:?}", current_song),
+        Err(e) => eprintln!("Error retrieving current song: {:?}", e),
     }
 }
