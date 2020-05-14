@@ -44,6 +44,10 @@ impl Mpd {
             let split: std::vec::Vec<&str> = line.split(":").collect();
             current_song.insert(split[0].to_string(), split[1][1..].to_string());
         }
-        Ok(current_song)
+        if current_song.is_empty() {
+            Err("no current song")
+        } else {
+            Ok(current_song)
+        }
     }
 }

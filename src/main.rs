@@ -11,6 +11,6 @@ fn main() {
     if let Ok(current_song) = Mpd::current_song(&mut mpd) {
         println!("{:?}", current_song);
     } else {
-        panic!("FAILURE CURRENT");
+        eprintln!("Error retrieving current song");
     }
 }
