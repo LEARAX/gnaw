@@ -1,0 +1,15 @@
+image: archlinux
+packages:
+  - rust
+sources:
+  - https://git.sr.ht/~learax/gnaw
+tasks:
+  - build: |
+      cd gnaw
+      cargo build --verbose --release
+  - test: |
+      cd gnaw
+      cargo test --verbose --release
+  - check-formatting: |
+      cd gnaw
+      cargo fmt --verbose -- --check
