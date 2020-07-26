@@ -21,5 +21,6 @@ jobs:
   rustfmt:
     runs-on: ubuntu-latest
     steps:
+    - uses: actions/checkout@v2
     - name: Check formatting
       run: cargo fmt --verbose -- --check
