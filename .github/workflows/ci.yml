@@ -15,9 +15,9 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Build project
-      run: cargo build --verbose
+      run: cargo build --verbose --release
     - name: Run tests
-      run: cargo test --verbose
+      run: cargo test --verbose --release
   rustfmt:
     runs-on: ubuntu-latest
     steps:
