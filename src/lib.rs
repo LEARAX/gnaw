@@ -1,6 +1,6 @@
 use std::collections::HashMap;
-use std::io::prelude::*;
-use std::io::BufReader;
+use std::io::{prelude::*, BufReader};
+use std::net::{SocketAddr, TcpStream};
 
 #[derive(Debug)]
 pub struct Mpd {
@@ -11,8 +11,8 @@ pub struct Mpd {
 type Song<'a> = HashMap<String, String>;
 
 impl Mpd {
-    pub fn new(address: std::net::SocketAddr) -> Result<Mpd, &'static str> {
-        if let Ok(stream) = std::net::TcpStream::connect(address) {
+    pub fn new(address: SocketAddr) -> Result<Mpd, &'static str> {
+        if let Ok(stream) = TcpStream::connect(address) {
             let mut reader = BufReader::new(&stream);
             let mut buffer = String::new();
             reader
@@ -24,6 +24,7 @@ impl Mpd {
                     version: buffer[7..buffer.len() - 1].to_string(),
                 })
             } else {
+                // TODO Handle failure response
                 Err("MPD returned an inappropriate response")
             }
         } else {
@@ -38,6 +39,7 @@ impl Mpd {
         let reader = BufReader::new(&self.connection);
         let mut current_song = Song::new();
         for line in reader.lines().map(|l| l.unwrap()) {
+            // TODO Handle failure response
             if line == "OK" {
                 break;
             }
@@ -58,6 +60,7 @@ impl Mpd {
         let reader = BufReader::new(&self.connection);
         let mut status = HashMap::new();
         for line in reader.lines().map(|l| l.unwrap()) {
+            // TODO Handle failure response
             if line == "OK" {
                 break;
             }
@@ -81,5 +84,22 @@ impl Mpd {
             stats.insert(split[0].to_string(), split[1][1..].to_string());
         }
         Ok(stats)
+    }
+    pub fn clear_error(&mut self) {
+        self.connection
+            .write(b"clearerror\n")
+            .expect("failed to write to MPD connection");
+
+        let mut response = String::new();
+        self.connection
+            .read_to_string(&mut response)
+            .expect("failed to read from MPD connection");
+
+        // TODO Handle failure response
+        if response == "OK" {
+            return;
+        } else {
+            panic!("MPD returned invalid response on clearerror");
+        }
     }
 }

@@ -2,7 +2,7 @@
 
 ## Informational
 
-- [ ] clearerror
+- [X] clearerror
 - [X] currentsong
 - [ ] idle
 - [X] status
