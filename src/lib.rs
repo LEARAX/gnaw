@@ -1,10 +1,12 @@
 use lazy_static::lazy_static;
 use regex::Regex;
-use std::collections::HashMap;
-use std::error::Error;
-use std::fmt;
-use std::io::{prelude::*, BufReader};
-use std::net::{SocketAddr, TcpStream};
+use std::{
+    collections::HashMap,
+    error::Error,
+    fmt,
+    io::{prelude::*, BufReader},
+    net::{SocketAddr, TcpStream},
+};
 
 #[derive(Debug)]
 pub struct Mpd {
