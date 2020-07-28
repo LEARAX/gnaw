@@ -1,3 +1,5 @@
+use lazy_static::lazy_static;
+use regex::Regex;
 use std::collections::HashMap;
 use std::io::{prelude::*, BufReader};
 use std::net::{SocketAddr, TcpStream};
@@ -8,9 +10,31 @@ pub struct Mpd {
     pub version: String,
 }
 
+#[derive(Debug)]
+pub struct MpdError {
+    code: usize,
+    list_position: usize,
+    current_command: String,
+    message_text: String,
+}
+
 type Song<'a> = HashMap<String, String>;
 
 impl Mpd {
+    fn handle_error(response: &str) -> MpdError {
+        lazy_static! {
+            static ref MPD_ERROR_REGEX: Regex =
+                Regex::new(r"ACK \[(\d+)@(\d+)\] \{(.+)\} (.+)").unwrap();
+        }
+
+        let caps = MPD_ERROR_REGEX.captures(response).unwrap();
+        MpdError {
+            code: caps.get(1).unwrap().as_str().parse().unwrap(),
+            list_position: caps.get(2).unwrap().as_str().parse().unwrap(),
+            current_command: caps.get(3).unwrap().as_str().to_string(),
+            message_text: caps.get(4).unwrap().as_str().to_string(),
+        }
+    }
     pub fn new(address: SocketAddr) -> Result<Mpd, &'static str> {
         if let Ok(stream) = TcpStream::connect(address) {
             let mut reader = BufReader::new(&stream);
